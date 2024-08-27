@@ -1,0 +1,87 @@
+:root {
+	--max-width: 1100px;
+	--border-radius: 12px;
+	--font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+	  'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
+	  'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+	font-family: "Overpass", sans-serif;
+  
+	--color-light: white;
+	--color-dark: #212121;
+	--backgound-blue :#222E50;
+	--backgound-white :#e6ecf0;
+	
+	--color-disabled: #6b6b6b;
+	--color-signal: #fab700;
+	--experience-one: #4ab3ff;
+	--experience-two: #407197;
+	--experience-three: #8094a3;
+  
+	--nav-backgound-dark:rgba(238, 238, 238, 0.164);
+	--nav-backgound-light:rgba(87, 87, 87, 0.13);
+	
+	--color-background-invert: var(--color-dark);
+	--color-background: var(--color-light);
+	--color-text: var(--color-dark);
+	--color-text-invert: var(--color-light);
+	--color-accent: var(--color-signal);
+	--nav-background: var(--nav-backgound-dark);
+	
+	--primary-card-color: white;
+	--size-bezel: .5rem;
+	--size-radius: 10px;
+	--container-width: 1000px;
+	--size-small: 800px;
+	--logo-size: 150px;
+	--logo-size-negative: -150px;
+	
+  }
+  
+  * {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+  }
+  
+  html,
+  body{
+	background-color: var(--backgound-white);
+	color: var(--color-text);
+	--color-text: var(--color-dark);
+	--color-text-invert: var(--color-light);
+	--nav-background: var(--nav-backgound-dark);
+  }
+  
+  a {
+	color: inherit;
+	text-decoration: none;
+  }
+  
+  ::-webkit-scrollbar {
+	width: 8px;
+	background: var(--color-signal);
+	height: 8px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+	background: var(--color-light);
+	height: 8px;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+	background: var(--color-signal);
+	border-radius: 4px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+	background: var(--color-signal);
+  }
+  
+  @media (max-width: 1000px){
+	body{
+	  --container-width: 800px;
+	}
+  }

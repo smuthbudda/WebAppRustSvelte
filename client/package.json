@@ -1,0 +1,34 @@
+{
+	"name": "frontend",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@fontsource/fira-mono": "^4.5.10",
+		"@neoconfetti/svelte": "^1.0.0",
+		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/node": "^20.12.11",
+		"svelte": "^4.2.17",
+		"svelte-check": "^3.6.0",
+		"svelte-frappe-charts": "^1.10.0",
+		"svelte-skeleton-loader": "^0.1.4",
+		"tslib": "^2.4.1",
+		"typescript": "^5.0.0",
+		"vite": "^5.0.3"
+	},
+	"type": "module",
+	"dependencies": {
+		"@ffmpeg/core": "^0.10.0",
+		"@ffmpeg/ffmpeg": "^0.10.1",
+		"@sveltestrap/sveltestrap": "^6.2.7",
+		"axios": "^1.6.8",
+		"crypto-js": "^4.2.0"
+	}
+}
