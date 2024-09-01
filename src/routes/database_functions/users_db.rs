@@ -1,8 +1,19 @@
-use sqlx::{Pool, Postgres};
+use sqlx::{query_as, Error, Pool, Postgres};
 
-use crate::{models::user::User, req_models::user_req::CreateUserRequest};
+use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User, UserIaafPoints}};
 
-pub async fn create_user(pool : &Pool<Postgres>, dto : CreateUserRequest, hash: String) -> bool{
+
+
+/// Creates a new user in the database.
+///
+/// # Arguments
+/// * `pool` - A reference to the Postgres connection pool.
+/// * `dto` - A `CreateUserRequest` struct containing the new user information.
+/// * `hash` - A string containing the hashed password for the new user.
+///
+/// # Returns
+/// `true` if the user was successfully created, `false` otherwise.
+pub async fn create_user(pool: &Pool<Postgres>, dto: CreateUserRequest, hash: String) -> bool {
     let insert_result = sqlx::query(
         r#"INSERT INTO users (user_name, first_name, last_name, email, phone, active, password) 
         VALUES ($1, $2, $3, $4, $5, TRUE, $6);
@@ -17,24 +28,117 @@ pub async fn create_user(pool : &Pool<Postgres>, dto : CreateUserRequest, hash: 
     .execute(pool)
     .await;
 
-    match insert_result{
-        Err(_e) => {
-            return false
-        },
-        Ok(result) => {
-           result.rows_affected() == 1 
-        }
+    match insert_result {
+        Err(_e) => return false,
+        Ok(result) => result.rows_affected() == 1,
     }
 }
 
-pub async fn get_user_by_username(pool : &Pool<Postgres>, user_name : &String) -> Option<User>{
-   let user : Option<User> =  sqlx::query_as(
+/// Retrieves a user from the database by their username.
+///
+/// # Arguments
+/// * `pool` - A reference to the Postgres connection pool.
+/// * `user_name` - A reference to the username of the user to retrieve.
+///
+/// # Returns
+/// An optional `User` struct representing the retrieved user, or `None` if the user was not found.
+pub async fn get_user_by_username(pool: &Pool<Postgres>, user_name: &String) -> Option<User> {
+    let user: Option<User> = sqlx::query_as(
         r#"SELECT * FROM users 
                 WHERE user_name = $1
                 FETCH FIRST 1 ROWS ONLY"#,
     )
     .bind(user_name)
     .fetch_optional(pool)
-    .await.expect("Error loading user.");
+    .await
+    .expect("Error loading user.");
     user
+}
+
+/// Updates an existing user in the database.
+///
+/// # Arguments
+/// * `pool` - A reference to the Postgres connection pool.
+/// * `dto` - A `CreateUserRequest` struct containing the updated user information.
+/// * `id` - A reference to the UUID of the user to be updated.
+///
+/// # Returns
+/// An optional `User` struct representing the updated user, or `None` if the update failed.
+pub async fn update_user(
+    pool: &Pool<Postgres>,
+    dto: UpdateUserRequest,
+    id: &i32,
+) -> Option<User> {
+    let user: Option<User> = sqlx::query_as(
+        r#"UPDATE users
+        SET user_name = $1, first_name = $2, last_name = $3, email = $4, phone = $5
+        WHERE id = $6
+        RETURNING *"#,
+    )
+    .bind(&dto.user_name)
+    .bind(dto.first_name)
+    .bind(dto.last_name)
+    .bind(dto.email)
+    .bind(dto.phone)
+    .bind(id)
+    .fetch_optional(pool)
+    .await
+    .expect("Error updating user.");
+
+    user
+}
+
+/// Retrieves a user from the database by their unique identifier (UUID).
+///
+/// # Arguments
+/// * `pool` - A reference to the Postgres connection pool.
+/// * `id` - A reference to the UUID of the user to retrieve.
+///
+/// # Returns
+/// An optional `User` struct representing the retrieved user, or `None` if the user was not found.
+pub async fn get_user_by_id(pool: &Pool<Postgres>, id: &i32) -> Option<User> {
+    let user: Option<User> = sqlx::query_as(
+        r#"SELECT * FROM users 
+                WHERE id = $1
+                FETCH FIRST 1 ROWS ONLY"#,
+    )
+    .bind(id)
+    .fetch_optional(pool)
+    .await
+    .expect("Error loading user.");
+
+    user
+}
+
+pub async fn get_user_points(
+    pool: &Pool<Postgres>,
+    user_id: i32,
+) -> Result<Vec<PointsInsert>, Error> {
+    let user_points = query_as(
+        r#"
+        SELECT p.*
+        FROM user_points up
+        JOIN points p ON p.id = up.point_id
+        WHERE up.user_id = $1
+        "#
+    )
+    .bind(user_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(user_points)
+}
+
+pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: &i32) -> Result<bool, Error> {
+    let insert_result = sqlx::query(
+        r#"INSERT INTO users_points (user_id, point_id) 
+        VALUES ($1, $2);
+        "#,
+    )
+    .bind(user_id)
+    .bind(point_id)
+    .execute(pool)
+    .await?;
+
+    return Ok(insert_result.rows_affected() == 1);
 }

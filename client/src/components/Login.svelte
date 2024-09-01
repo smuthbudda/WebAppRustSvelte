@@ -13,12 +13,18 @@
     let currentError = "";
 
     async function login() {
-        let token = await apiClient.userLogin(username, password);
-        sessionStorage.setItem("token", token[1].access_token);
-        let result  = await apiClient.getMyDetails(token[1].access_token);
-        console.log(result);
-        userDetails.setName(result[1].first_name)
-        userDetails.setId(result[1].id)
+        try {
+            let token = await apiClient.userLogin(username, password);
+            sessionStorage.setItem("token", token[1].access_token);
+            let result  = await apiClient.getMyDetails(token[1].access_token);
+            console.log(result);
+            let user_details_from_result = result[1];
+            userDetails.setDetails(user_details_from_result);
+            // close the modal on successful login
+        } catch (error) {
+            // Do More error handling here
+            console.log(error);
+        }
     }
 
 </script>

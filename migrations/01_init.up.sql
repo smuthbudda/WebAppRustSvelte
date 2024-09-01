@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id SERIAL PRIMARY KEY,
     user_name VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
@@ -21,14 +21,13 @@ CREATE TABLE IF NOT EXISTS points (
 );
 
 CREATE TABLE IF NOT EXISTS user_points (
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    point_id INTEGER REFERENCES points(id) ON DELETE CASCADE,
-    date_achieved TIMESTAMP DEFAULT NULL,
+    user_id INTEGER REFERENCES users(id),
+    point_id INTEGER REFERENCES points(id),
     PRIMARY KEY (user_id, point_id)
 );
 
-CREATE TABLE IF NOT EXISTS todos (
-    id SERIAL PRIMARY KEY NOT NULL,
+CREATE TABLE IF NOT EXISTS pages (
+    id SERIAL PRIMARY KEY,
     text VARCHAR(255) NOT NULL,
     done BOOLEAN DEFAULT false NOT NULL
 );

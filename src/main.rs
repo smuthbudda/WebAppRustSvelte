@@ -3,6 +3,7 @@ use axum::http::{
     header::{AUTHORIZATION, CONTENT_TYPE},
     Method,
 };
+use models::token::TokenDetails;
 use moka::future::Cache;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
@@ -15,7 +16,6 @@ mod config;
 mod routes;
 mod db;
 mod models;
-mod req_models;
 
 #[tokio::main]
 async fn main() {
@@ -24,14 +24,14 @@ async fn main() {
     let server_address = env::var("SERVER_ADDRESS").unwrap_or("127.0.0.1:3000".to_owned());
     let connection_pool: Pool<Postgres> = db::connect_to_database().await;
     let (tx, _) = broadcast::channel::<routes::routes::Snapshot>(1);
-    let cache:Cache<Uuid, req_models::token::TokenDetails> = Cache::builder()
+    let cache:Cache<Uuid, TokenDetails> = Cache::builder()
         .max_capacity(50_000)
         .time_to_live(Duration::from_secs(60 * 60 * 24))
         .time_to_idle(Duration::from_secs(60 * 60 * 24))
         .build();
     tracing_subscriber::fmt::init();
 
-    sqlx::migrate!().run(&connection_pool).await.unwrap();
+
 
     let cors = CorsLayer::new()
         .allow_methods([

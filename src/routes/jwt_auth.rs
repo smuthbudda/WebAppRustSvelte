@@ -25,6 +25,14 @@ pub struct JWTAuthMiddleware {
     pub access_token_uuid: uuid::Uuid,
 }
 
+
+/// Handles JWT-based authentication for the application.
+///
+/// This function extracts the access token from the request, verifies it, and retrieves the associated user information.
+/// If the token is valid and the user exists, the function attaches the user and access token details to the request extensions,
+/// allowing them to be accessed by subsequent middleware or route handlers.
+/// If the token is invalid or the user is not found, the function returns an error response with the appropriate status code and error message.
+/// Handles JWT-based authentication for the application.
 pub async fn auth(
     cookie_jar: CookieJar,
     State(data): State<Arc<AppState>>,
@@ -76,6 +84,7 @@ pub async fn auth(
             (StatusCode::UNAUTHORIZED, Json(error_response))
         })?;
 
+    // Get the token from the cache
     let cache = &data.cache;
     let cache_token = cache.get(&access_token_uuid).await;
 
@@ -87,6 +96,7 @@ pub async fn auth(
         return Err((StatusCode::UNAUTHORIZED, Json(error_response)))
     }
 
+    // Get the user from the database
     let user: Option<User> = query_as(
         r#"SELECT * FROM users 
                 WHERE id = $1

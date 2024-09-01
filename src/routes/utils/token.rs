@@ -1,9 +1,10 @@
 use base64::{engine::general_purpose, Engine as _};
 use uuid::Uuid;
-use crate::req_models::token::{TokenClaims, TokenDetails};
+
+use crate::models::token::{TokenClaims, TokenDetails};
 
 pub fn generate_jwt_token(
-    user_id: uuid::Uuid,
+    user_id: i32,
     ttl: i64,
     private_key: String,
 ) -> Result<TokenDetails, jsonwebtoken::errors::Error> {
@@ -19,7 +20,7 @@ pub fn generate_jwt_token(
     };
 
     let claims = TokenClaims {
-        sub: token_details.user_id.to_string(),
+        sub: token_details.user_id,
         token_uuid: token_details.token_uuid.to_string(),
         exp: token_details.expires_in.unwrap(),
         iat: now.timestamp(),
@@ -51,7 +52,7 @@ pub fn verify_jwt_token(
         &validation,
     )?;
 
-    let user_id = Uuid::parse_str(decoded.claims.sub.as_str()).unwrap();
+    let user_id = decoded.claims.sub;
     let token_uuid = Uuid::parse_str(decoded.claims.token_uuid.as_str()).unwrap();
 
     Ok(TokenDetails {

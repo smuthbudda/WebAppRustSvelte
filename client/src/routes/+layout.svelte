@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Header from "./Header.svelte";
+	import Footer from "./Footer.svelte";
+import Header from "./Header.svelte";
 	import "./styles.css";
 	
 
@@ -12,7 +13,7 @@
 		<slot />
 	</main>
 
-	<footer></footer>
+	<Footer/>
 </div>
 
 <style>

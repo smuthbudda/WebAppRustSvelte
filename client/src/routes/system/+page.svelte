@@ -3,6 +3,8 @@
   import type { SystemInfo } from "$lib/types";
   import { onMount } from "svelte";
   import { Spinner } from "@sveltestrap/sveltestrap";
+    import Card from "../../components/card.svelte";
+
   let socket;
   let url = `${baseWSUrl}/api/system/cpu`;
   let chart_data: number[] = [];
@@ -27,19 +29,21 @@
 </script>
 
 <div class="system_container">
-  <div class="card cpu">
-    {#each chart_data as cpu}
-      <div class="bar">
-        <div class="bar-inner" style="width: {cpu}%"></div>
-        <small>{cpu.toFixed(2)}%</small>
-      </div>
-    {/each}
-    {#if chart_data.length == 0}
-      <Spinner type="border" color="primary" />
-    {/if}
-  </div>
-  <div class="card">
-    <h4>System Information</h4>
+  <Card title="CPU Usage" footer="CPU Usage">
+    <div class="cpu">
+      {#each chart_data as cpu}
+        <div class="bar">
+          <div class="bar-inner" style="width: {cpu}%"></div>
+          <small>{cpu.toFixed(2)}%</small>
+        </div>
+      {/each}
+      {#if chart_data.length == 0}
+        <Spinner type="border" color="primary" />
+      {/if}
+    </div>
+  </Card>
+
+  <Card title="System Information" footer="Details about the system">
     <section class="system_info">
       {#if system_info != undefined}
         <div><strong>CPU Name:</strong> {system_info.cpu_info.brand}</div>
@@ -48,29 +52,26 @@
           <strong>Total Ram:</strong>
           {system_info.ram_total / (1024 * 1024 * 10)}
         </div>
-        <div><strong>CPU Name:</strong> {system_info.disks[0]}</div>
+        <div><strong>Disks:</strong> {system_info.disks[0]}</div>
       {/if}
     </section>
-  </div>
+  </Card>
 </div>
 
 <style>
   .system_container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.5rem;
   }
 
-  .card {
-    background-color: var(--primary-card-color);
-    padding: 1rem;
-  }
   .cpu {
     display: flex;
     gap: 0.8rem;
     flex-direction: column;
     min-height: 500px;
   }
+
   .bar {
     background: #264653;
     color: white;

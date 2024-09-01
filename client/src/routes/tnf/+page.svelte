@@ -2,8 +2,8 @@
     import type { Gender, TrackPoints } from "$lib/types";
     import { APIClient } from "$lib/ApiClient";
     import { OutdoorEvents } from "$lib/const.js";
-    import VideoUpload from "../../components/VideoUpload.svelte";
-    import VidUpload from "../../components/VidUpload.svelte";
+    import VidUpload from "../../components/VidUpload.svelte";// Adjust the path as needed
+    import Card from "../../components/card.svelte";
 
     const apiBaseUrl = import.meta.env.API_BASE_URL;
     let apiclient = new APIClient(apiBaseUrl);
@@ -34,27 +34,26 @@
     const authorizedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 </script>
 
-<section>
-    <h2>Iaaf Points Conversion</h2>
+<Card title="IAAF Points Conversion" footer="">
     <div>
         <select bind:value={category}>
-            {#each CategoryArr as category}
-                <option value={category}>
-                    {category}
+            {#each CategoryArr as cat}
+                <option value={cat}>
+                    {cat}
                 </option>
             {/each}
         </select>
         <select bind:value={gender}>
-            {#each GenderArr as gender}
-                <option value={gender}>
-                    {gender}
+            {#each GenderArr as gen}
+                <option value={gen}>
+                    {gen}
                 </option>
             {/each}
         </select>
         <select bind:value={event}>
-            {#each OutdoorEvents as event}
-                <option value={event.Event}>
-                    {event.Event}
+            {#each OutdoorEvents as ev}
+                <option value={ev.Event}>
+                    {ev.Event}
                 </option>
             {/each}
         </select>
@@ -98,22 +97,16 @@
             >
         {/if}
     </div>
-</section>
+</Card>
+
 <VidUpload/>
 
 <style>
-    section {
-        display: flex;
-        gap: 2rem;
-        flex-direction: column;
-        background: white;
-        padding: 1rem;
-    }
-
     .styled-table {
         border-collapse: collapse;
         font-size: 0.9em;
         min-width: 400px;
+        width: 100%;
     }
 
     .styled-table thead tr {

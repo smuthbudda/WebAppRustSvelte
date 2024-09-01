@@ -1,18 +1,26 @@
 
 import { type Readable, writable } from "svelte/store"
-import type { State } from "./types"
+import type { LoggedInUserDetails, State } from "./types"
 
-const initialState: State = { username: "", id: ""}
-
-export type MyStore = Readable<State> & { setName: (username: string) => void , setId: (id : string) => void
+const initialState: LoggedInUserDetails = { user_name: "", id: 1 ,first_name: "", last_name: "", email: "", phone: "", password : "123123"}
+export type MyStore = Readable<State> & {
+    setDetails: (user_details: LoggedInUserDetails) => void,
 }
 
 function createStore(): MyStore {
     const { subscribe, update } = writable<State>(initialState)
 
-    return { subscribe, 
-        setName: (username: string) => update((state) => ({ ...state, username })),
-        setId: (id: string) => update((state) => ({ ...state, id })) }
+    return {
+        subscribe,
+        setDetails: (user_details: LoggedInUserDetails) => {
+            update((state) => {
+                return {
+                    ...state,
+                    ...user_details
+                }
+            })
+        }
+    }
 }
 
 export const userDetails = createStore()

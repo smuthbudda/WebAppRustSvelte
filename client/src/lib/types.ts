@@ -1,5 +1,3 @@
-import type { UUID } from "crypto";
-
 export interface TrackPoints{
     Category: string;
     Event: string;
@@ -38,12 +36,30 @@ export interface AccessToken {
 }
 
 export interface LoggedInUserDetails{
-    id: UUID,
+    id: number,
     first_name: string,
     last_name: string,
     user_name: string,
     email: string,
     phone: string,
+    password: string,
 }
 
-export type State = { username: string, id : string}
+// Define the TypeScript type
+export interface UpdateUserRequest {
+    first_name: string;
+    last_name: string;
+    user_name: string;
+    email: string;
+    phone?: string | null; // phone is optional and can be null
+}
+
+export interface State{ 
+    user_name: string, 
+    id : number,
+    first_name: string,
+    last_name: string,
+    email: string,
+    phone: string,
+    password: string,
+}
