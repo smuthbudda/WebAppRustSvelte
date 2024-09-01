@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import { APIClient } from "$lib/ApiClient";
 
-	function logout() {
-		fetch("/api/logout", {
-			method: "POST"
-		});
+	let api = new APIClient();
+	async function logout() {
+		await api.userLogout(""?? "");
 	}
 </script>
 
@@ -14,7 +14,7 @@
 	<div class="corner">
 		{#if $page.data.user}
 			<a href="/user">{$page.data.user.user_name}</a>
-			<a href="#" >Logout</a>
+			<a href="#" on:click={logout}>Logout</a>
 		{:else}
 			<a href="/login"> Login </a>
 		{/if}

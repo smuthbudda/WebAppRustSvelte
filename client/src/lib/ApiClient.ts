@@ -59,6 +59,28 @@ export class APIClient {
             console.error("Error during login:", error);
         }
         return [HttpStatusCode.BadRequest, undefined];
+    }    
+    
+    async userLogout(token: string): Promise<HttpStatusCode> {
+        try {
+            const url = `${this.baseAPIUrl}/api/auth/logout`;
+            const rawResponse = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (rawResponse.ok) {
+                return HttpStatusCode.Ok;
+            }
+            console.error("Logout Failed:", rawResponse.statusText);
+        } catch (error) {
+            console.error("Error during login:", error);
+        }
+        return HttpStatusCode.BadRequest;
     }
 
     async getMyDetails(token: string): Promise<[HttpStatusCode, LoggedInUserDetails?]> {
