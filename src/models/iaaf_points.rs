@@ -7,7 +7,7 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::FromRow)]
 #[serde(rename_all = "PascalCase")]
 pub struct PointsInsert {
-    pub id: i32,
+    pub id: Option<i32>,
     pub points: i32,
     pub gender: String,
     pub category: String,
@@ -16,7 +16,7 @@ pub struct PointsInsert {
 }
 
 impl PointsInsert {
-    pub fn new(id: i32, points: i32, gender: String, category: String, event: String, mark: f64) -> Self {
+    pub fn new(id: Option<i32>, points: i32, gender: String, category: String, event: String, mark: f64) -> Self {
         Self {
             id,
             points,

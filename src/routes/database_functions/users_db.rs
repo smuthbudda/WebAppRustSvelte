@@ -114,7 +114,7 @@ pub async fn get_user_points(
     pool: &Pool<Postgres>,
     user_id: i32,
 ) -> Result<Vec<PointsInsert>, Error> {
-    let user_points = query_as(
+    let user_points: Vec<PointsInsert> = query_as(
         r#"
         SELECT p.*
         FROM user_points up
@@ -130,9 +130,57 @@ pub async fn get_user_points(
 }
 
 pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: &i32) -> Result<bool, Error> {
+    //Check one does not exist
+    let user_points: Option<PointsInsert> = query_as(
+        r#"
+        SELECT *
+        FROM user_points 
+        WHERE user_id = $1 AND point_id = $2
+        "#
+    )
+    .bind(user_id)
+    .bind(point_id)
+    .fetch_optional(pool)
+    .await?;
+
+    if user_points.is_some() {
+        return Err(sqlx::Error::RowNotFound);
+    }
+
     let insert_result = sqlx::query(
-        r#"INSERT INTO users_points (user_id, point_id) 
+        r#"INSERT INTO user_points (user_id, point_id) 
         VALUES ($1, $2);
+        "#,
+    )
+    .bind(user_id)
+    .bind(point_id)
+    .execute(pool)
+    .await?;
+
+    return Ok(insert_result.rows_affected() == 1);
+}
+
+
+pub async fn delete_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: &i32) -> Result<bool, Error> {
+    //Check one does not exist
+    let user_points: Option<PointsInsert> = query_as(
+        r#"
+        SELECT *
+        FROM user_points up
+        WHERE user_id = $1 AND point_id = $2
+        "#
+    )
+    .bind(user_id)
+    .bind(point_id)
+    .fetch_optional(pool)
+    .await?;
+
+    if user_points.is_none() {
+        return Err(sqlx::Error::RowNotFound);
+    }
+
+    let insert_result = sqlx::query(
+        r#"DELETE FROM user_points WHERE user_id = $1 && point_id = $1;
         "#,
     )
     .bind(user_id)

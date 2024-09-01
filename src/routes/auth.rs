@@ -270,6 +270,19 @@ fn generate_token(
     })
 }
 
+fn get_token_details(
+    token : String,
+    private_key: String
+) -> Result<TokenDetails, (StatusCode, Json<serde_json::Value>)> {
+    token::verify_jwt_token(private_key, &token).map_err(|e| {
+        let error_response = serde_json::json!({
+            "status": "error",
+            "message": format!("error generating token: {}", e),
+        });
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(error_response))
+    })
+}
+
 /// Caches a JWT token in the application state.
 ///
 /// This function takes the application state and a `TokenDetails` struct, and inserts the token into the cache using the token's UUID as the key.

@@ -8,7 +8,7 @@ use std::{error::Error, sync::Arc, time::SystemTime};
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, BufReader};
 
-use super::{database_functions::users_db::{get_user_points, insert_new_user_points}, jwt_auth::JWTAuthMiddleware, routes::AppState};
+use super::{database_functions::users_db::{delete_user_points, get_user_points, insert_new_user_points}, jwt_auth::JWTAuthMiddleware, routes::AppState};
 
 static FILE_LOCATION: &str = "data/WorldAthletics.json";
 
@@ -130,8 +130,7 @@ pub async fn get_value(
 
 pub async fn get_user_points_handler(
     Path(user_id): Path<i32>,
-    State(data): State<Arc<AppState>>,
-    Extension(jwtauth): Extension<JWTAuthMiddleware>,
+    State(data): State<Arc<AppState>>
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)>{
     if  user_id == 0 {
         let bad_json = serde_json::json!({
@@ -170,6 +169,35 @@ pub async fn add_user_points_handler(
     }
 
     match insert_new_user_points(&data.db,&user_id, &point_id).await{
+        Ok(_) => {
+            let json_response = serde_json::json!({
+                "user_points": "success"
+            });
+            return Ok(Json(json_response));
+        }
+        Err(e) => {
+            let error_response = serde_json::json!({
+                "status": "error",
+                "message": format!("Database error: { }", e),
+            });
+            return Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)));
+        }
+    }
+}
+
+pub async fn delete_user_points_handler(
+    Path((user_id, point_id)): Path<(i32, i32)>,
+    State(data): State<Arc<AppState>>,
+    Extension(jwtauth): Extension<JWTAuthMiddleware>,
+) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)>{
+    if  jwtauth.user.id != user_id {
+        let bad_json = serde_json::json!({
+            "status": "Bad Request"
+        });
+        return Err((StatusCode::NOT_FOUND, Json(bad_json)));
+    }
+
+    match delete_user_points(&data.db,&user_id, &point_id).await{
         Ok(_) => {
             let json_response = serde_json::json!({
                 "user_points": "success"

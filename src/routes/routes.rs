@@ -6,7 +6,7 @@ use crate::models::token::TokenDetails;
 use super::{
     auth::{login_handler, logout_handler, refresh_access_token_handler},
     files::upload_file,
-    iaaf_points::{add_user_points_handler, get_user_points_handler, get_value, read_iaaf_json},
+    iaaf_points::{add_user_points_handler, delete_user_points_handler, get_user_points_handler, get_value, read_iaaf_json},
     jwt_auth::auth,
     system_info::{get_system_details_handler, realtime_cpu_handler},
     users::{
@@ -16,7 +16,7 @@ use super::{
 
 use axum::{
     middleware,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
     Router,
 };
 use moka::future::Cache;
@@ -38,25 +38,23 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .route("/", get(get_users_handler))
         .route("/", post(create_user_handler))
         .route(
-            "/me",
-            get(get_user_details_handler)
-                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+            "/userpoints/:user_id/:points_id",
+            post(add_user_points_handler),
         )
         .route(
-            "/update/:id",
-            put(update_user_handler)
-                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
-        );
+            "/userpoints/:user_id/:points_id",
+            delete(delete_user_points_handler),
+        )
+        .route("/userpoints/:user_id", get(get_user_points_handler))
+        .route("/me", get(get_user_details_handler))
+        .route("/:id", put(update_user_handler))
+        .route_layer(middleware::from_fn_with_state(app_state.clone(), auth));
 
     let health_check_routes: Router<Arc<AppState>> =
         Router::new().route("/check", get(super::health_check::health_check));
 
     let points_routes: Router<Arc<AppState>> = Router::new()
         .route("/read", get(read_iaaf_json))
-        .route("/user_points/:user_id", get(get_user_points_handler))
-            .route_layer(middleware::from_fn_with_state(app_state.clone(), auth))
-        .route("/add_user_points/:user_id/:points_id", post(add_user_points_handler))
-            .route_layer(middleware::from_fn_with_state(app_state.clone(), auth))
         .route("/points/:category/:gender/:event", get(get_value));
 
     let system_routes: Router<Arc<AppState>> = Router::new()

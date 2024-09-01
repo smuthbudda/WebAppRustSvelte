@@ -14,7 +14,7 @@
 	<div class="corner">
 		{#if $page.data.user}
 			<a href="/user">{$page.data.user.user_name}</a>
-			<a href="#" on:click={}>Logout</a>
+			<a href="#" >Logout</a>
 		{:else}
 			<a href="/login"> Login </a>
 		{/if}

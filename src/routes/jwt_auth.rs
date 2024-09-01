@@ -86,7 +86,7 @@ pub async fn auth(
 
     // Get the token from the cache
     let cache = &data.cache;
-    let cache_token = cache.get(&access_token_uuid).await;
+    let cache_token: Option<crate::models::token::TokenDetails> = cache.get(&access_token_uuid).await;
 
     if cache_token.is_none(){
         let error_response = ErrorResponse {
@@ -95,6 +95,18 @@ pub async fn auth(
         };
         return Err((StatusCode::UNAUTHORIZED, Json(error_response)))
     }
+
+
+    // if  cache_token.as_ref().unwrap().expires_in.is_some(){
+    //     match  cache_token.as_ref().unwrap().expires_in.unwrap() >= chrono::Utc::now().timestamp(){
+    //         true => {
+
+    //         },
+    //         false => {
+
+    //         }
+    //     }
+    // }
 
     // Get the user from the database
     let user: Option<User> = query_as(
