@@ -7,7 +7,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (!session) {
 		console.log("No session cookie found");
 		// if there is no session load page as normal
-		return await resolve(event)
+		return resolve(event);
 	}
 	// console.log("Session from the cookie: " + session);
 	if (!session) {
@@ -15,7 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		if (event.url.pathname === '/admin') {
 			return redirect(300,'/')
 		}
-		return await resolve(event)
+		return resolve(event);
 	}
 	let apiClient = new APIClient();
 	// find the user based on the session
@@ -23,8 +23,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// if `user` exists set `events.local`
 	if (user[1] ) { 
 		event.locals.user = user[1];
+		event.locals.cookie = session
 	}
 
 	// load page as normal
-	return await resolve(event)
+	return resolve(event);
 }

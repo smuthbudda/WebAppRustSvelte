@@ -2,6 +2,7 @@ use sqlx::migrate::MigrateError;
 use sqlx::{postgres::PgPoolOptions, Executor, PgPool};
 use std::process::exit;
 
+///
 pub async fn connect_to_database() -> PgPool {
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = match PgPoolOptions::new()

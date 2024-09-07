@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
     Extension, Json,
@@ -40,9 +40,9 @@ pub async fn create_user_handler(
     State(data): State<Arc<AppState>>,
     Json(req): Json<CreateUserRequest>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
-    match get_user_by_username(&data.db, &req.user_name).await {
+    match get_user_by_username(&data.db, &req.email).await {
         None => println!("user does not exist"),
-        Some(_user) => return Ok(Json(serde_json::json!({"status":"User Already Exists"}))),
+        Some(_user) => return Ok(Json(serde_json::json!({"status":"User With Matching Email Already Exists"}))),
     }
 
     let hash = hash_password(&req.password);
@@ -83,19 +83,16 @@ pub async fn update_user_handler(
             Json(serde_json::json!({ "status": "User ID does not match." })),
         ));
     }
-    // Check if the user exists
-    match get_user_by_username(&data.db, &req.user_name).await {
-        None => println!("user does not exist"),
-        Some(_user) => return Ok(Json(serde_json::json!({"status":"User Already Exists"}))),
-    }
+
+    // If updating the email make sure that there is not an existing email in the database.
 
     // Update the user
     match update_user(&data.db, req, &user_id).await {
         None => {
-            return Err((
+           Err((
                 StatusCode::BAD_REQUEST,
                 Json(serde_json::json!({ "status": "Error updating user." })),
-            ));
+            ))
         }
         Some(user) => {
             let json_response = serde_json::json!({
@@ -104,7 +101,7 @@ pub async fn update_user_handler(
                     "user": user
                 })
             });
-            return Ok(Json(json_response));
+            Ok(Json(json_response))
         }
     }
 }

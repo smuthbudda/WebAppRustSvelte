@@ -2,5 +2,4 @@ cargo install sqlx-cli
 cargo sqlx database create
 cargo sqlx migrate run
 ```
-Rust notes:
- - The Docs --> rustup docs --book
+Debuggin Node in rust rover: npm run dev in the terminal. Then ctrl shift click to debug in rust rover

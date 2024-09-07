@@ -22,7 +22,7 @@
 					<fieldset class="form-group">
 						<input
 							class="form-control form-control-lg"
-							name="username"
+							name="email"
 							type="text"
 							required
 							placeholder="Email"

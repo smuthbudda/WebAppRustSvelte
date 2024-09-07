@@ -1,3 +1,5 @@
+use askama::filters::{into_f64, into_isize};
+use rand_core::le::read_u64_into;
 use sqlx::{query_as, Error, Pool, Postgres};
 
 use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User, UserIaafPoints}};
@@ -15,11 +17,10 @@ use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateU
 /// `true` if the user was successfully created, `false` otherwise.
 pub async fn create_user(pool: &Pool<Postgres>, dto: CreateUserRequest, hash: String) -> bool {
     let insert_result = sqlx::query(
-        r#"INSERT INTO users (user_name, first_name, last_name, email, phone, active, password) 
-        VALUES ($1, $2, $3, $4, $5, TRUE, $6);
+        r#"INSERT INTO users ( first_name, last_name, email, phone, active, password)
+        VALUES ($1, $2, $3, $4, TRUE, $5);
         "#,
     )
-    .bind(dto.user_name)
     .bind(dto.first_name)
     .bind(dto.last_name)
     .bind(dto.email)
@@ -42,13 +43,13 @@ pub async fn create_user(pool: &Pool<Postgres>, dto: CreateUserRequest, hash: St
 ///
 /// # Returns
 /// An optional `User` struct representing the retrieved user, or `None` if the user was not found.
-pub async fn get_user_by_username(pool: &Pool<Postgres>, user_name: &String) -> Option<User> {
+pub async fn get_user_by_username(pool: &Pool<Postgres>, email: &String) -> Option<User> {
     let user: Option<User> = sqlx::query_as(
         r#"SELECT * FROM users 
-                WHERE user_name = $1
+                WHERE email = $1
                 FETCH FIRST 1 ROWS ONLY"#,
     )
-    .bind(user_name)
+    .bind(email)
     .fetch_optional(pool)
     .await
     .expect("Error loading user.");
@@ -71,14 +72,13 @@ pub async fn update_user(
 ) -> Option<User> {
     let user: Option<User> = sqlx::query_as(
         r#"UPDATE users
-        SET user_name = $1, first_name = $2, last_name = $3, email = $4, phone = $5
-        WHERE id = $6
+        SET email = $1, first_name = $2, last_name = $3, phone = $4
+        WHERE id = $5
         RETURNING *"#,
     )
-    .bind(&dto.user_name)
+    .bind(dto.email)
     .bind(dto.first_name)
     .bind(dto.last_name)
-    .bind(dto.email)
     .bind(dto.phone)
     .bind(id)
     .fetch_optional(pool)
@@ -163,24 +163,24 @@ pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_
 
 pub async fn delete_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: &i32) -> Result<bool, Error> {
     //Check one does not exist
-    let user_points: Option<PointsInsert> = query_as(
+    let count: (i64,) = sqlx::query_as(
         r#"
-        SELECT *
-        FROM user_points up
+        SELECT COUNT(*)
+        FROM user_points
         WHERE user_id = $1 AND point_id = $2
         "#
     )
     .bind(user_id)
     .bind(point_id)
-    .fetch_optional(pool)
+    .fetch_one(pool)
     .await?;
 
-    if user_points.is_none() {
+    if count.0 == 0 {
         return Err(sqlx::Error::RowNotFound);
     }
 
     let insert_result = sqlx::query(
-        r#"DELETE FROM user_points WHERE user_id = $1 && point_id = $1;
+        r#"DELETE FROM user_points WHERE user_id = $1 AND point_id = $2;
         "#,
     )
     .bind(user_id)

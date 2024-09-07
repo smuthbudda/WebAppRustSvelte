@@ -1,13 +1,17 @@
 <script lang="ts">
+    export let data;
     import type { Gender, TrackPoints } from "$lib/types";
     import { APIClient } from "$lib/ApiClient";
     import { OutdoorEvents } from "$lib/const.js";
-    import VidUpload from "../../components/VidUpload.svelte";// Adjust the path as needed
     import Card from "../../components/card.svelte";
+    import {Button} from "@sveltestrap/sveltestrap";
+    import { page } from "$app/stores";
+    import { onMount } from 'svelte';
 
-    const apiBaseUrl = import.meta.env.API_BASE_URL;
-    let apiclient = new APIClient(apiBaseUrl);
+    let apiclient = new APIClient();
     let loading: boolean = false;
+    $: cookie = data.cookie;
+
 
     let category = "Outdoor";
     let gender = "Male";
@@ -16,10 +20,22 @@
 
     let eventsList: TrackPoints[] = [];
 
+    onMount(async () => {
+        try {
+            let result : TrackPoints[] = await apiclient.GetMyPoints(cookie, $page.data.user.id)
+            eventsList = [...eventsList, ...result];
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+
     async function getResults() {
-        var result = await apiclient.getResults(category, gender, event, time);
-        if (result != undefined) {
-            eventsList = [...eventsList, result];
+        let result = await apiclient.getResults(category, gender, event, time);
+        if (result) {
+            console.log(result)
+            if (eventsList.filter((x) => result.Id == x.Id).length == 0){
+                eventsList = [...eventsList, result];
+            }
         }
     }
 
@@ -29,12 +45,20 @@
         loading = false;
     }
 
+    async function addPointsToUser(points_id: number){
+        await apiclient.requestUserPoints(cookie, $page.data.user.id, points_id, "POST");
+    }
+
+    async function deleteUserPoint(points_id: number){
+        await apiclient.requestUserPoints(cookie, $page.data.user.id, points_id, "DELETE");
+    }
+
     let GenderArr = ["Male", "Female"];
     let CategoryArr = ["Indoor", "Outdoor"];
     const authorizedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 </script>
 
-<Card title="IAAF Points Conversion" footer="">
+<Card title="World Athletics Points Conversion" footer="">
     <div>
         <select bind:value={category}>
             {#each CategoryArr as cat}
@@ -69,6 +93,7 @@
                 <th>Gender</th>
                 <th>Mark</th>
                 <th>Points</th>
+                <th>Add</th>
             </tr>
         </thead>
         <tbody>
@@ -80,6 +105,10 @@
                         <td>{row.Gender}</td>
                         <td>{row.Mark}</td>
                         <td>{row.Points}</td>
+                        <td>
+                            <Button on:click={async() => await addPointsToUser(row.Id)} type="button">Add {row.Id}</Button>
+                            <Button on:click={async() => await deleteUserPoint(row.Id)} type="button">Delete {row.Id}</Button>
+                        </td>
                     </tr>
                 {/each}
             {/if}
@@ -99,7 +128,6 @@
     </div>
 </Card>
 
-<VidUpload/>
 
 <style>
     .styled-table {
