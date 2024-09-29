@@ -171,4 +171,25 @@ export class APIClient {
         }
         return [HttpStatusCode.BadRequest, undefined];
     }
+
+    async addUserPoints(token: string) {
+        try{
+            const url = `${this.baseAPIUrl}/api/user/register`;
+            const rawResponse = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (rawResponse.ok) {
+                const content = await rawResponse.json();
+                return [HttpStatusCode.Created, content];
+            }
+            console.error("Failed to create new user:", rawResponse.statusText);
+        }catch(error){
+
+        }
+    }
 }

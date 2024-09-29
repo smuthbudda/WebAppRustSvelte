@@ -50,6 +50,9 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .route("/:id", put(update_user_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), auth));
 
+    let create_user_route :  Router<Arc<AppState>> = Router::new()
+        .route("/", post(create_user_handler));
+
     let health_check_routes: Router<Arc<AppState>> =
         Router::new().route("/check", get(super::health_check::health_check));
 
@@ -75,6 +78,7 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
         .nest("/system", system_routes)
         .nest("/auth", auth_routes)
         .nest("/files", file_routes)
+        .nest ("/create_user", create_user_route)
         .with_state(app_state);
 
     Router::new().nest("/api", router)

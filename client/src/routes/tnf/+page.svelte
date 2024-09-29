@@ -4,6 +4,7 @@
     import { OutdoorEvents } from "$lib/const.js";
     import VidUpload from "../../components/VidUpload.svelte";// Adjust the path as needed
     import Card from "../../components/card.svelte";
+    import {Button} from "@sveltestrap/sveltestrap";
 
     const apiBaseUrl = import.meta.env.API_BASE_URL;
     let apiclient = new APIClient(apiBaseUrl);
@@ -21,6 +22,10 @@
         if (result != undefined) {
             eventsList = [...eventsList, result];
         }
+    }
+
+    async function addPointsToUser(id : number) {
+        apiclient.addUserPoints( id)
     }
 
     async function loadDataToDB() {
@@ -69,6 +74,7 @@
                 <th>Gender</th>
                 <th>Mark</th>
                 <th>Points</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -80,6 +86,7 @@
                         <td>{row.Gender}</td>
                         <td>{row.Mark}</td>
                         <td>{row.Points}</td>
+                        <td><Button on:click={addPointsToUser(row.id)}>ADD</Button></td>
                     </tr>
                 {/each}
             {/if}

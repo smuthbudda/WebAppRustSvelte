@@ -1,4 +1,5 @@
 export interface TrackPoints{
+    Id: number;
     Category: string;
     Event: string;
     Gender: string;
