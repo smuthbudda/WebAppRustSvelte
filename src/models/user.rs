@@ -74,6 +74,12 @@ pub struct CreateUserRequest {
     pub password: String,
 }
 
+impl CreateUserRequest {
+    pub fn new(first_name: String, last_name: String, email: String, phone: Option<String>, password: String) -> CreateUserRequest {
+        CreateUserRequest{first_name, last_name, email,phone, password}
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 #[allow(non_snake_case)]
 pub struct UpdateUserRequest {

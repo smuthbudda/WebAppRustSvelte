@@ -1,4 +1,4 @@
 pub mod routes;
 pub mod models;
 pub mod config;
-mod DataSeeder;
+mod data_seeder;

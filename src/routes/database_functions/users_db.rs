@@ -1,9 +1,6 @@
-use askama::filters::{into_f64, into_isize};
-use rand_core::le::read_u64_into;
 use sqlx::{query_as, Error, Pool, Postgres};
 
-use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User, UserIaafPoints}};
-
+use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User}};
 
 
 /// Creates a new user in the database.
@@ -157,7 +154,7 @@ pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_
     .execute(pool)
     .await?;
 
-    return Ok(insert_result.rows_affected() == 1);
+    Ok(insert_result.rows_affected() == 1)
 }
 
 
@@ -188,5 +185,5 @@ pub async fn delete_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: 
     .execute(pool)
     .await?;
 
-    return Ok(insert_result.rows_affected() == 1);
+    Ok(insert_result.rows_affected() == 1)
 }
