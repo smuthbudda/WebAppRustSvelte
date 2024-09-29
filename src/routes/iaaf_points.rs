@@ -139,19 +139,19 @@ pub async fn get_user_points_handler(
         return Err((StatusCode::NOT_FOUND, Json(bad_json)));
     }
 
-    match get_user_points(&data.db, user_id).await{
+    match get_user_points(&data.db, user_id).await {
         Ok(points) => {
             let json_response = serde_json::json!({
                 "user_points": points
             });
-            return Ok(Json(json_response));
+            Ok(Json(json_response))
         }
         Err(e) => {
             let error_response = serde_json::json!({
                 "status": "error",
                 "message": format!("Database error: { }", e),
             });
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)));
+            Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)))
         }
     }
 }
@@ -173,14 +173,14 @@ pub async fn add_user_points_handler(
             let json_response = serde_json::json!({
                 "user_points": "success"
             });
-            return Ok(Json(json_response));
+             Ok(Json(json_response))
         }
         Err(e) => {
             let error_response = serde_json::json!({
                 "status": "error",
                 "message": format!("Database error: { }", e),
             });
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)));
+             Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)))
         }
     }
 }

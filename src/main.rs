@@ -31,8 +31,6 @@ async fn main() {
         .build();
     tracing_subscriber::fmt::init();
 
-
-
     let cors = CorsLayer::new()
         .allow_methods([
             Method::GET,

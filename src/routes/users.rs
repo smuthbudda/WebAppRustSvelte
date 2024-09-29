@@ -92,10 +92,10 @@ pub async fn update_user_handler(
     // Update the user
     match update_user(&data.db, req, &user_id).await {
         None => {
-            return Err((
+            Err((
                 StatusCode::BAD_REQUEST,
                 Json(serde_json::json!({ "status": "Error updating user." })),
-            ));
+            ))
         }
         Some(user) => {
             let json_response = serde_json::json!({
@@ -104,7 +104,7 @@ pub async fn update_user_handler(
                     "user": user
                 })
             });
-            return Ok(Json(json_response));
+            Ok(Json(json_response))
         }
     }
 }

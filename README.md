@@ -1,6 +1,5 @@
-cargo install sqlx-cli
-cargo sqlx database create
-cargo sqlx migrate run
-```
-Rust notes:
- - The Docs --> rustup docs --book
+About: 
+    - This is a server and client project. 
+    - The backend is written in Rust using axum to serve the API and Postgres as the database.
+        - This also server the auth using jwt tokens to authenticate client requests
+    - The frontend is written using SvelteKit.

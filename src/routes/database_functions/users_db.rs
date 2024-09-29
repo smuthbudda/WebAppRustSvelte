@@ -1,7 +1,6 @@
 use sqlx::{query_as, Error, Pool, Postgres};
 
-use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User, UserIaafPoints}};
-
+use crate::models::{iaaf_points::PointsInsert, user::{CreateUserRequest, UpdateUserRequest, User}};
 
 
 /// Creates a new user in the database.
@@ -29,7 +28,7 @@ pub async fn create_user(pool: &Pool<Postgres>, dto: CreateUserRequest, hash: St
     .await;
 
     match insert_result {
-        Err(_e) => return false,
+        Err(_e) => false,
         Ok(result) => result.rows_affected() == 1,
     }
 }
@@ -144,7 +143,7 @@ pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_
     .await?;
 
     if user_points.is_some() {
-        return Err(sqlx::Error::RowNotFound);
+        return Err(Error::RowNotFound);
     }
 
     let insert_result = sqlx::query(
@@ -157,7 +156,7 @@ pub async fn insert_new_user_points(pool: &Pool<Postgres>, user_id: &i32, point_
     .execute(pool)
     .await?;
 
-    return Ok(insert_result.rows_affected() == 1);
+    Ok(insert_result.rows_affected() == 1)
 }
 
 
@@ -176,7 +175,7 @@ pub async fn delete_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: 
     .await?;
 
     if user_points.is_none() {
-        return Err(sqlx::Error::RowNotFound);
+        return Err(Error::RowNotFound);
     }
 
     let insert_result = sqlx::query(
@@ -188,5 +187,5 @@ pub async fn delete_user_points(pool: &Pool<Postgres>, user_id: &i32, point_id: 
     .execute(pool)
     .await?;
 
-    return Ok(insert_result.rows_affected() == 1);
+    Ok(insert_result.rows_affected() == 1)
 }
