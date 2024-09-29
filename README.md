@@ -1,5 +1,5 @@
-About: 
-    - This is a server and client project. 
-    - The backend is written in Rust using axum to serve the API and Postgres as the database.
-        - This also server the auth using jwt tokens to authenticate client requests
-    - The frontend is written using SvelteKit.
+cargo install sqlx-cli
+cargo sqlx database create
+cargo sqlx migrate run
+```
+Debuggin Node in rust rover: npm run dev in the terminal. Then ctrl shift click to debug in rust rover

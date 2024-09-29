@@ -1,30 +1,30 @@
 ###
-POST http://localhost:7878/api/create_user HTTP/1.1
+POST http://localhost:7878/api/auth/user HTTP/1.1
 content-type: application/json
 
 {
     "first_name": "Jordan",
     "last_name": "Samson",
-    "user_name": "jkdsamson@outlook.com",
+    "user_name": "jsamson",
     "email": "jkdsamson@outlook.com",
     "phone": "0452339108",
     "password": "Jojo the 123!"
 }
 
 ###
-POST http://localhost:7878/api/user/login HTTP/1.1
+POST http://localhost:7878/api/user/me HTTP/1.1
 content-type: application/json
 
 {
-    "user_name": "jkdsamson@outlook.com",
+    "user_name": "jsamson",
     "password" : "Jojo the 123!"
 }
 
 ###
-GET http://localhost:7878/api/health-check/check HTTP/1.1
+GET http://localhost:7878/api/health_check/check HTTP/1.1
 
 ###
-GET http://localhost:7878/api/world-aths/read HTTP/1.1
+GET http://localhost:7878/api/world_aths/read HTTP/1.1
 
 ###
 GET http://localhost:7878/api/system/cpu HTTP/1.1
@@ -33,15 +33,8 @@ GET http://localhost:7878/api/system/cpu HTTP/1.1
 GET http://localhost:7878/api/system/details HTTP/1.1
 
 ###
-GET http://localhost:7878/api/world-aths/points/Outdoor/Male/200m?mark=21.98 HTTP/1.1
+GET http://localhost:7878/api/world_aths/points/Outdoor/Male/200m?mark=21.98 HTTP/1.1
 
 ###
 GET http://localhost:7878/api/world-aths/points/Outdoor/Male/100m?mark=10.44 HTTP/1.1
 
-###
-POST http://localhost:7878/api/user/userpoints/1/84231 HTTP/1.1
-content-type: application/json
-
-{
-
-}

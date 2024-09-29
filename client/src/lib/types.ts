@@ -1,11 +1,11 @@
 export interface TrackPoints{
-    Id: number;
+    Id:number;
     Category: string;
     Event: string;
     Gender: string;
     Mark: number;
     Points: number;
-};
+}
 
 
 export interface CpuInfo {
@@ -40,7 +40,6 @@ export interface LoggedInUserDetails{
     id: number,
     first_name: string,
     last_name: string,
-    user_name: string,
     email: string,
     phone: string,
     password: string,
@@ -50,7 +49,6 @@ export interface LoggedInUserDetails{
 export interface UpdateUserRequest {
     first_name: string;
     last_name: string;
-    user_name: string;
     email: string;
     phone?: string | null; // phone is optional and can be null
 }
