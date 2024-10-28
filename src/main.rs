@@ -16,6 +16,7 @@ mod config;
 mod routes;
 mod db;
 mod models;
+mod data_seeder;
 
 #[tokio::main]
 async fn main() {
@@ -23,6 +24,10 @@ async fn main() {
     let config = config::Config::init();
     let server_address = env::var("SERVER_ADDRESS").unwrap_or("127.0.0.1:3000".to_owned());
     let connection_pool: Pool<Postgres> = db::connect_to_database().await;
+
+    // Seed the database
+    data_seeder::seed_database(&connection_pool).await;
+
     let (tx, _) = broadcast::channel::<routes::routes::Snapshot>(1);
     let cache:Cache<Uuid, TokenDetails> = Cache::builder()
         .max_capacity(50_000)
@@ -30,8 +35,6 @@ async fn main() {
         .time_to_idle(Duration::from_secs(60 * 60 * 24))
         .build();
     tracing_subscriber::fmt::init();
-
-
 
     let cors = CorsLayer::new()
         .allow_methods([

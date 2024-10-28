@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
 use std::{fmt, str::FromStr};
-
 use serde::{de, Deserialize, Deserializer, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::FromRow)]

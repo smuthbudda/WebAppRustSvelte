@@ -59,8 +59,8 @@ export class APIClient {
             console.error("Error during login:", error);
         }
         return [HttpStatusCode.BadRequest, undefined];
-    }    
-    
+    }
+
     async userLogout(token: string): Promise<HttpStatusCode> {
         try {
             const url = `${this.baseAPIUrl}/api/auth/logout`;

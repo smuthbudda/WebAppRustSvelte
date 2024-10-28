@@ -42,7 +42,7 @@ pub async fn get_system_details_handler(
     let sys_info = SystemInfo::new(cpu_info, os, total_memory, disk_list);
 
     let response = Response::new(json!({"status": "success", "data": sys_info}).to_string());
-    return Ok(response);
+    Ok(response)
 }
 
 pub async fn realtime_cpu_handler(ws: WebSocketUpgrade, State(state): State<Arc<AppState>>) -> impl IntoResponse {

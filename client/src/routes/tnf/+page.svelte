@@ -12,7 +12,7 @@
     let loading: boolean = false;
     $: cookie = data.cookie;
 
-
+    let myEvents: TrackPoints[] = [];
     let category = "Outdoor";
     let gender = "Male";
     let event = "100m";
@@ -22,8 +22,8 @@
 
     onMount(async () => {
         try {
-            let result : TrackPoints[] = await apiclient.GetMyPoints(cookie, $page.data.user.id)
-            eventsList = [...eventsList, ...result];
+            myEvents = await apiclient.GetMyPoints(cookie, $page.data.user.id)
+            eventsList = [...eventsList, ...myEvents];
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -39,18 +39,25 @@
         }
     }
 
+    function userHasPoints(id: number): boolean{
+        return myEvents.filter((x) => x.Id == id).length > 0
+    }
+
     async function loadDataToDB() {
         loading = true;
         await apiclient.loadDataToDB();
         loading = false;
     }
 
-    async function addPointsToUser(points_id: number){
-        await apiclient.requestUserPoints(cookie, $page.data.user.id, points_id, "POST");
+    async function addPointsToUser(object: TrackPoints) {
+        await apiclient.requestUserPoints(cookie, $page.data.user.id, object.Id, "POST");
+        myEvents = [...myEvents, object];
+        eventsList = [...eventsList];
     }
 
     async function deleteUserPoint(points_id: number){
         await apiclient.requestUserPoints(cookie, $page.data.user.id, points_id, "DELETE");
+        eventsList = eventsList.filter((x) => x.Id != points_id);
     }
 
     let GenderArr = ["Male", "Female"];
@@ -106,8 +113,11 @@
                         <td>{row.Mark}</td>
                         <td>{row.Points}</td>
                         <td>
-                            <Button on:click={async() => await addPointsToUser(row.Id)} type="button">Add {row.Id}</Button>
-                            <Button on:click={async() => await deleteUserPoint(row.Id)} type="button">Delete {row.Id}</Button>
+                            {#if userHasPoints(row.Id)}
+                                <Button on:click={async() => await deleteUserPoint(row.Id)} type="button">Delete</Button>
+                            {:else}
+                                <Button on:click={async() => await addPointsToUser(row)} type="button">Add</Button>
+                            {/if}
                         </td>
                     </tr>
                 {/each}
@@ -115,17 +125,17 @@
         </tbody>
     </table>
 
-    <div>
-        {#if loading}
-            <small>Loading</small>
-        {:else}
-            <button
-                on:click={async () => {
-                    await loadDataToDB();
-                }}>Load Data</button
-            >
-        {/if}
-    </div>
+<!--    <div>-->
+<!--        {#if loading}-->
+<!--            <small>Loading</small>-->
+<!--        {:else}-->
+<!--            <button-->
+<!--                on:click={async () => {-->
+<!--                    await loadDataToDB();-->
+<!--                }}>Load Data</button-->
+<!--            >-->
+<!--        {/if}-->
+<!--    </div>-->
 </Card>
 
 
