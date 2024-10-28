@@ -36,19 +36,15 @@ pub struct AppState {
 pub fn create_router(app_state: Arc<AppState>) -> Router {
     let user_routes: Router<Arc<AppState>> = Router::new()
         .route("/", get(get_users_handler))
-        .route("/", post(create_user_handler))
-        .route(
-            "/userpoints/:user_id/:points_id",
-            post(add_user_points_handler),
-        )
-        .route(
-            "/userpoints/:user_id/:points_id",
-            delete(delete_user_points_handler),
-        )
-        .route("/userpoints/:user_id", get(get_user_points_handler))
+        .route("/user_points/:user_id/:points_id", post(add_user_points_handler))
+        .route("/user_points/:user_id/:points_id", delete(delete_user_points_handler), )
+        .route("/user_points/:user_id", get(get_user_points_handler))
         .route("/me", get(get_user_details_handler))
         .route("/:id", put(update_user_handler))
         .route_layer(middleware::from_fn_with_state(app_state.clone(), auth));
+
+    let create_user_route :  Router<Arc<AppState>> = Router::new()
+        .route("/", post(create_user_handler));
 
     let health_check_routes: Router<Arc<AppState>> =
         Router::new().route("/check", get(super::health_check::health_check));
@@ -63,6 +59,7 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
 
     let auth_routes: Router<Arc<AppState>> = Router::new()
         .route("/refresh_token", get(refresh_access_token_handler))
+        .route("/user", post(create_user_handler))
         .route("/logout", get(logout_handler))
         .route("/login", post(login_handler));
 
@@ -70,11 +67,12 @@ pub fn create_router(app_state: Arc<AppState>) -> Router {
 
     let router: Router = Router::new()
         .nest("/user", user_routes)
-        .nest("/health-check", health_check_routes)
-        .nest("/world-aths", points_routes)
+        .nest("/health_check", health_check_routes)
+        .nest("/world_aths", points_routes)
         .nest("/system", system_routes)
         .nest("/auth", auth_routes)
         .nest("/files", file_routes)
+        .nest ("/create_user", create_user_route)
         .with_state(app_state);
 
     Router::new().nest("/api", router)

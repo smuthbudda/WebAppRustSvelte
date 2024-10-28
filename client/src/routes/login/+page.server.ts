@@ -14,9 +14,9 @@ export const actions = {
 	default: async ({ cookies, request }) => {
 		const data = await request.formData();
 
-		let userName = data.get('username')?.toString() ?? "";
+		let email = data.get('email')?.toString() ?? "";
 		let password = data.get('password')?.toString() ?? "";
-		let response = await apiClient.userLogin(userName, password);
+		let response = await apiClient.userLogin(email, password);
 		// console.log("Logged in: " + response[1].access_token);
 		if (response)
 			if (response[1]) {

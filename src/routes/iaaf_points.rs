@@ -2,81 +2,27 @@ use crate::models::iaaf_points::{Category, Gender, PointsInsert, PointsSearchQue
 use axum::{
     extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, Extension, Json
 };
-use axum_login::AuthUser;
 use serde_json;
-use std::{error::Error, sync::Arc, time::SystemTime};
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, BufReader};
+use std::sync::Arc;
 
-use super::{database_functions::users_db::{delete_user_points, get_user_points, insert_new_user_points}, jwt_auth::JWTAuthMiddleware, routes::AppState};
+use super::{database_functions::users_db::{delete_user_points, get_user_points, insert_new_user_points},
+            jwt_auth::JWTAuthMiddleware, routes::AppState, database_functions::athletics_db::{read_into_db}};
 
-static FILE_LOCATION: &str = "data/WorldAthletics.json";
 
 pub async fn read_iaaf_json(
     State(data): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, (axum::http::StatusCode, Json<serde_json::Value>)> {
-    let count: i64 = sqlx::query_scalar(r#"SELECT COUNT(id) FROM points"#)
-        .fetch_one(&data.db)
-        .await
-        .unwrap();
+        let json_response = serde_json::json!({
+            "Status" : "Values Added!",
+        });
 
-    let mut json_response = serde_json::json!({
-        "Message": "Points Already Exists"
-    });
-
-    if count > 200000 {
-        return Err((StatusCode::BAD_REQUEST, Json(json_response)));
-    }
-
-    let models: Result<Vec<PointsInsert>, Box<dyn Error>> = read_file_async().await;
-
-    match models {
-        Err(e) => {
-            let error = "Error: ".to_string() + &e.to_string();
-            json_response = serde_json::json!({
-                "Message": error
-            });
-            return Ok(Json(json_response));
+        match read_into_db(&data.db).await{
+            true => Ok(Json(json_response)),
+            false => Err((StatusCode::BAD_REQUEST, Json(json_response)))
         }
-        Ok(_) => {
-            print!("inserting into database");
-            //There has to be a better way to insert 200000 records than individually. It takes so long.
-            let models: Vec<PointsInsert> = models.unwrap_or_default();
-
-            let points: Vec<i32> = models.iter().map(|p| p.points).collect();
-            let genders: Vec<String> = models.iter().map(|p| p.gender.clone()).collect();
-            let categories: Vec<String> = models.iter().map(|p| p.category.clone()).collect();
-            let events: Vec<String> = models.iter().map(|p| p.event.clone()).collect();
-            let marks: Vec<f64> = models.iter().map(|p| p.mark).collect();
-            let start = SystemTime::now();
-            let query_result = sqlx::query(
-            r#"INSERT INTO points (points, gender, category, event, mark)
-                    SELECT * FROM UNNEST($1::INTEGER[], $2::VARCHAR(10)[], $3::VARCHAR(20)[], $4::VARCHAR(10)[], $5::Float[])"#,
-            )
-            .bind(points)
-            .bind(genders)
-            .bind(categories)
-            .bind(events)
-            .bind(marks)
-            .execute(&data.db)
-            .await;
-
-            match query_result {
-                Ok(_) => {}
-                Err(err) => {
-                    println!("Error: {}", err);
-                }
-            }
-
-            json_response = serde_json::json!({
-                "Status" : "Values Added!",
-                "Time": start.elapsed().unwrap().as_secs_f32()
-            });
-
-            return Ok(Json(json_response));
-        }
-    }
 }
+
+
 
 pub async fn get_value(
     Path((category, gender, event)): Path<(Category, Gender, String)>,
@@ -139,7 +85,7 @@ pub async fn get_user_points_handler(
         return Err((StatusCode::NOT_FOUND, Json(bad_json)));
     }
 
-    match get_user_points(&data.db, user_id).await {
+    match get_user_points(&data.db, user_id).await{
         Ok(points) => {
             let json_response = serde_json::json!({
                 "user_points": points
@@ -173,14 +119,14 @@ pub async fn add_user_points_handler(
             let json_response = serde_json::json!({
                 "user_points": "success"
             });
-             Ok(Json(json_response))
+            Ok(Json(json_response))
         }
         Err(e) => {
             let error_response = serde_json::json!({
                 "status": "error",
                 "message": format!("Database error: { }", e),
             });
-             Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)))
+            Err((StatusCode::INTERNAL_SERVER_ERROR, Json(error_response)))
         }
     }
 }
@@ -214,13 +160,3 @@ pub async fn delete_user_points_handler(
     }
 }
 
-async fn read_file_async() -> Result<Vec<PointsInsert>, Box<dyn Error>> {
-    let file = File::open(FILE_LOCATION).await?;
-    let mut reader = BufReader::new(file);
-    let mut buffer = Vec::new();
-    reader.read_to_end(&mut buffer).await?;
-
-    let points: Vec<PointsInsert> = serde_json::from_slice(&buffer)?;
-
-    Ok(points)
-}

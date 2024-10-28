@@ -13,7 +13,7 @@
 
 	<div class="corner">
 		{#if $page.data.user}
-			<a href="/user">{$page.data.user.user_name}</a>
+			<a href="/user">{$page.data.user.email}</a>
 			<a href="#" on:click={logout}>Logout</a>
 		{:else}
 			<a href="/login"> Login </a>
@@ -30,7 +30,7 @@
 	.corner {
 		position: relative;
 		top: 10px;
-		width: 5em;
+		width: 8em;
 		height: 3em;
 	}
 

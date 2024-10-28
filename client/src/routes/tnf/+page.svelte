@@ -1,14 +1,18 @@
 <script lang="ts">
+    export let data;
     import type { Gender, TrackPoints } from "$lib/types";
     import { APIClient } from "$lib/ApiClient";
     import { OutdoorEvents } from "$lib/const.js";
-    import VidUpload from "../../components/VidUpload.svelte";// Adjust the path as needed
     import Card from "../../components/card.svelte";
+    import {Button} from "@sveltestrap/sveltestrap";
+    import { page } from "$app/stores";
+    import { onMount } from 'svelte';
 
-    const apiBaseUrl = import.meta.env.API_BASE_URL;
-    let apiclient = new APIClient(apiBaseUrl);
+    let apiclient = new APIClient();
     let loading: boolean = false;
+    $: cookie = data.cookie;
 
+    let myEvents: TrackPoints[] = [];
     let category = "Outdoor";
     let gender = "Male";
     let event = "100m";
@@ -16,11 +20,27 @@
 
     let eventsList: TrackPoints[] = [];
 
-    async function getResults() {
-        var result = await apiclient.getResults(category, gender, event, time);
-        if (result != undefined) {
-            eventsList = [...eventsList, result];
+    onMount(async () => {
+        try {
+            myEvents = await apiclient.GetMyPoints(cookie, $page.data.user.id)
+            eventsList = [...eventsList, ...myEvents];
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
+    });
+
+    async function getResults() {
+        let result = await apiclient.getResults(category, gender, event, time);
+        if (result) {
+            console.log(result)
+            if (eventsList.filter((x) => result.Id == x.Id).length == 0){
+                eventsList = [...eventsList, result];
+            }
+        }
+    }
+
+    function userHasPoints(id: number): boolean{
+        return myEvents.filter((x) => x.Id == id).length > 0
     }
 
     async function loadDataToDB() {
@@ -29,12 +49,23 @@
         loading = false;
     }
 
+    async function addPointsToUser(object: TrackPoints) {
+        await apiclient.requestUserPoints(cookie, $page.data.user.id, object.Id, "POST");
+        myEvents = [...myEvents, object];
+        eventsList = [...eventsList];
+    }
+
+    async function deleteUserPoint(points_id: number){
+        await apiclient.requestUserPoints(cookie, $page.data.user.id, points_id, "DELETE");
+        eventsList = eventsList.filter((x) => x.Id != points_id);
+    }
+
     let GenderArr = ["Male", "Female"];
     let CategoryArr = ["Indoor", "Outdoor"];
     const authorizedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 </script>
 
-<Card title="IAAF Points Conversion" footer="">
+<Card title="World Athletics Points Conversion" footer="">
     <div>
         <select bind:value={category}>
             {#each CategoryArr as cat}
@@ -69,6 +100,7 @@
                 <th>Gender</th>
                 <th>Mark</th>
                 <th>Points</th>
+                <th>Add</th>
             </tr>
         </thead>
         <tbody>
@@ -80,26 +112,32 @@
                         <td>{row.Gender}</td>
                         <td>{row.Mark}</td>
                         <td>{row.Points}</td>
+                        <td>
+                            {#if userHasPoints(row.Id)}
+                                <Button on:click={async() => await deleteUserPoint(row.Id)} type="button">Delete</Button>
+                            {:else}
+                                <Button on:click={async() => await addPointsToUser(row)} type="button">Add</Button>
+                            {/if}
+                        </td>
                     </tr>
                 {/each}
             {/if}
         </tbody>
     </table>
 
-    <div>
-        {#if loading}
-            <small>Loading</small>
-        {:else}
-            <button
-                on:click={async () => {
-                    await loadDataToDB();
-                }}>Load Data</button
-            >
-        {/if}
-    </div>
+<!--    <div>-->
+<!--        {#if loading}-->
+<!--            <small>Loading</small>-->
+<!--        {:else}-->
+<!--            <button-->
+<!--                on:click={async () => {-->
+<!--                    await loadDataToDB();-->
+<!--                }}>Load Data</button-->
+<!--            >-->
+<!--        {/if}-->
+<!--    </div>-->
 </Card>
 
-<VidUpload/>
 
 <style>
     .styled-table {

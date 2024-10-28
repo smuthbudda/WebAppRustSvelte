@@ -4,7 +4,7 @@
     export let data;
 </script>
 
-<Card title="Update {data.user_name} Profile" footer="{data.user_name}">
+<Card title="Update {data.first_name} Profile" footer="{data.last_name}">
     <form method="post">
         <div class="input-group">
             <label for="first_name">First Name:</label>
@@ -23,16 +23,6 @@
                 id="last_name"
                 name="last_name"
                 bind:value={data.last_name}
-                required
-            />
-        </div>
-        <div class="input-group">
-            <label for="user_name">Username:</label>
-            <input
-                type="text"
-                id="user_name"
-                name="user_name"
-                bind:value={data.user_name}
                 required
             />
         </div>

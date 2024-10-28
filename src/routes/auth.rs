@@ -18,7 +18,7 @@ use std::sync::Arc;
 #[derive(Debug, Deserialize, Serialize)]
 #[allow(non_snake_case)]
 pub struct LoginRequest {
-    user_name: String,
+    email: String,
     password: String,
 }
 
@@ -39,10 +39,10 @@ pub async fn login_handler(
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     let user: Option<crate::models::user::User> = sqlx::query_as(
         r#"SELECT * FROM users 
-                WHERE user_name = $1
+                WHERE email = $1
                 FETCH FIRST 1 ROWS ONLY"#,
     )
-    .bind(&req.user_name)
+    .bind(&req.email)
     .fetch_optional(&data.db)
     .await
     .map_err(|e| {

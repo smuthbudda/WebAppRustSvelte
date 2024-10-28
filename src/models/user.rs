@@ -7,7 +7,6 @@ pub struct User {
     pub active: bool,
     pub first_name: String,
     pub last_name: String,
-    pub user_name: String,
     pub email: String,
     pub phone: Option<String>,
     password: String
@@ -19,7 +18,6 @@ pub struct UserDto {
     pub active: bool,
     pub first_name: String,
     pub last_name: String,
-    pub user_name: String,
     pub email: String,
     pub phone: Option<String>,
 }
@@ -35,7 +33,6 @@ impl User {
             active: self.active,
             first_name: self.first_name.clone(),
             last_name: self.last_name.clone(),
-            user_name: self.user_name.clone(),
             email: self.email.clone(),
             phone: self.phone.clone(),
         }
@@ -72,10 +69,15 @@ pub struct UserIaafPoints{
 pub struct CreateUserRequest {
     pub first_name: String,
     pub last_name: String,
-    pub user_name: String,
     pub email: String,
     pub phone: Option<String>,
     pub password: String,
+}
+
+impl CreateUserRequest {
+    pub fn new(first_name: String, last_name: String, email: String, phone: Option<String>, password: String) -> CreateUserRequest {
+        CreateUserRequest{first_name, last_name, email,phone, password}
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -83,7 +85,6 @@ pub struct CreateUserRequest {
 pub struct UpdateUserRequest {
     pub first_name: String,
     pub last_name: String,
-    pub user_name: String,
     pub email: String,
     pub phone: Option<String>,
 }
@@ -93,7 +94,6 @@ pub struct UpdateUserRequest {
 pub struct UserResponse{
     pub first_name: String,
     pub last_name: String,
-    pub user_name: String,
     pub email: String,
     pub phone: Option<String>,
 }
