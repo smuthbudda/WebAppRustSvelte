@@ -1,25 +1,9 @@
 import type { Gender, Category } from "./types";
 
 export const FPS = 10;
-export const baseAPIUrl = "http://localhost:7878";
+export const baseAPIUrl = "http://localhost:8080";
 export const baseWSUrl = "ws://localhost:7878";
 // export const baseAPIUrl = "192.168.1.114:7878";
-
-export enum HttpClientBaseMehod {
-    POST = 'POST',
-    GET = 'GET',
-    PUT = 'PUT'
-}
-
-export interface HttpClientBaseHeader {
-    'Content-Type': string,
-    'Authorization'?: string
-}
-
-export interface HttpClientBaseStatusCode {
-    statusCode: number
-    statusText: HttpStatusCode
-}
 
 export enum HttpStatusCode {
     Continue = 100,

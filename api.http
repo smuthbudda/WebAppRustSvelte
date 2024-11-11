@@ -21,7 +21,7 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:7878/api/health_check/check HTTP/1.1
+GET http://localhost:8080/api/health_check/check HTTP/1.1
 
 ###
 GET http://localhost:7878/api/world_aths/read HTTP/1.1

@@ -1,13 +1,25 @@
 services:
+#  web:
+#    build:
+#      context: /client
+#      dockerfile: .dockerfile
+#    ports:
+#      - "5173:5173"
+#    volumes:
+#      - /app/node_modules
+#      - .:/app
+#    depends_on:
+#      - api
+
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: .dockerfile
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - PORT=${PORT}
+      - DATABASE_URL=postgres://user:password@db:5432/mydatabase  # Internal Docker connection on 5432
+      - SERVER_ADDRESS=0.0.0.0:8080
     env_file:
       - .env
     depends_on:
@@ -20,9 +32,10 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydatabase
     ports:
-      - "5433:5433"
+      - "5433:5432"  # Map container's 5432 to host's 5433
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
 
 volumes:
   postgres_data:

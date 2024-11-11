@@ -1,6 +1,6 @@
-target
+target/
 .dockerignore
-Dockerfile
+.dockerfile
 README.md
 .git
 .vscode
