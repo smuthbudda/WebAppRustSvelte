@@ -6,9 +6,9 @@ content-type: application/json
     "first_name": "Jordan",
     "last_name": "Samson",
     "user_name": "jsamson",
-    "email": "jkdsamson@outlook.com",
-    "phone": "0452339108",
-    "password": "Jojo the 123!"
+    "email": "",
+    "phone": "",
+    "password": ""
 }
 
 ###
@@ -16,8 +16,8 @@ POST http://localhost:7878/api/user/me HTTP/1.1
 content-type: application/json
 
 {
-    "user_name": "jsamson",
-    "password" : "Jojo the 123!"
+    "user_name": "",
+    "password" : ""
 }
 
 ###
